@@ -1,6 +1,6 @@
 use common::sense;
 
-use Test::More tests => 10;
+use Test::More tests => 9;
 use IPC::Run qw(start);
 
 my $tor2web =
@@ -11,18 +11,19 @@ use IO::Socket::SSL;
 
 # create a connecting socket
 my $socket;
-my $ctr = 0;
+my $ctr      = 0;
+my @sockopts = (
+    PeerHost     => '127.0.0.1',
+    PeerPort     => '8444',
+    Proto        => 'tcp',
+    SSL_hostname => 'echooooooooooooo.onion.test',
+    SSL_ca_file  => './t/etc/ssl/test-cert.pem',
+);
 do {
     diag "Connection attempt $ctr: $!"
       if ( $ctr != 0 );
     sleep( ( $ctr == 0 ) * 4 + $ctr );
-    $socket = new IO::Socket::SSL(
-        PeerHost     => '127.0.0.1',
-        PeerPort     => '8444',
-        Proto        => 'tcp',
-        SSL_hostname => 'echooooooooooooo.onion.test',
-        SSL_ca_file  => './t/etc/ssl/test-cert.pem',
-    );
+    $socket = new IO::Socket::SSL(@sockopts);
   } while ( !$socket
     && $! == $!{ECONNREFUSED}
     && $ctr++ < 4 );
@@ -55,49 +56,57 @@ sub one_response {
             $clen -= $len;
         }
     }
-    if ( 0 == $len ) {
+    if ( 0 != $len && $response =~ m%^HTTP/1\.0% ) {
+        while ( 0 != $len ) {
+            my $b;
+            $len = $sock->read( $b, $len );
+            $response .= $b;
+        }
+        $sock->close();
+        $sock = new IO::Socket::SSL(@sockopts);
+        unless ($sock) {
+            diag "Cannot connect to the server: $!";
+            $tor2web->signal('INT');
+            $tor2web->finish();
+            die;
+        }
+    } elsif ( 0 == $len ) {
         fail 'Remote host closed connection';
         $tor2web->signal('INT');
         $tor2web->finish();
         die;
     }
-    return $response;
+    return ( $sock, $response );
 }
 
-SKIP: {
-    skip 'Temp for testing.', 4 if $ENV{TTWLANG} eq 'python';
+my $resp;
+ok $socket->print(
+"GET /index.txt HTTP/1.0\r\nConnection: keep-alive\r\nHost: echooooooooooooo.onion.test\r\n\r\n"
+  ),
+  'host header sent';
+( $socket, $resp ) = one_response($socket);
+is $resp,
+"HTTP/1.0 200 Success\r\nContent-Type: text/plain\r\nContent-Length: 81\r\n\r\nGET /index.txt HTTP/1.1\r\nConnection: keep-alive\r\nHost: echooooooooooooo.onion\r\n\r\n",
+  'host header read';
 
-    ok $socket->print(
-"GET /index.txt HTTP/1.1\r\nConnection: keep-alive\r\nHost: echooooooooooooo.onion.test\r\n\r\n"
-      ),
-      'host header sent';
-    is one_response($socket),
-"HTTP/1.1 200 Success\r\nContent-Type: text/plain\r\nContent-Length: 81\r\n\r\nGET /index.txt HTTP/1.1\r\nConnection: keep-alive\r\nHost: echooooooooooooo.onion\r\n\r\n",
-      'host header read';
-
-    ok $socket->print(
+ok $socket->print(
 "GET https://echooooooooooooo.onion.test/index.txt HTTP/1.1\r\nConnection: keep-alive\r\n\r\n"
-      ),
-      'empty headers sent';
-    is one_response($socket),
-"HTTP/1.1 200 Success\r\nContent-Type: text/plain\r\nContent-Length: 81\r\n\r\nGET https://echooooooooooooo.onion/index.txt HTTP/1.1\r\nConnection: keep-alive\r\n\r\n",
-      'empty headers read';
-
-}
+  ),
+  'empty headers sent';
+( $socket, $resp ) = one_response($socket);
+is $resp,
+"HTTP/1.0 200 Success\r\nContent-Type: text/plain\r\nContent-Length: 81\r\n\r\nGET https://echooooooooooooo.onion/index.txt HTTP/1.1\r\nConnection: keep-alive\r\n\r\n",
+  'empty headers read';
 
 ok $socket->print(
 "GET /index.txt HTTP/1.0\r\nConnection: close\r\nCookie: disclaimer_accepted=true\r\nHost: echooooooooooooo.onion.test\r\nContent-Length: 3\r\n\r\nok\n"
   ),
   'ok content sent';
-is one_response($socket),
-"HTTP/1.1 200 Success\r\nContent-Type: text/plain\r\nContent-Length: 98\r\n\r\nGET /index.txt HTTP/1.1\r\nConnection: close\r\nCookie: disclaimer_accepted=true\r\nHost: echooooooooooooo.onion\r\nContent-Length: 3\r\n\r\nok\n",
+( $socket, $resp ) = one_response($socket);
+is $resp,
+"HTTP/1.0 200 Success\r\nContent-Type: text/plain\r\nContent-Length: 98\r\n\r\nGET /index.txt HTTP/1.1\r\nConnection: close\r\nCookie: disclaimer_accepted=true\r\nHost: echooooooooooooo.onion\r\nContent-Length: 3\r\n\r\nok\n",
   'ok content read';
 
-SKIP: {
-    skip 'Does not support: "Connection: close"', 4 if $ENV{TTWLANG} eq 'c';
-    my $b;
-    is $socket->read( $b, 1 ), 0, 'Closed connection';
-}
 ok $socket->close(), 'closed';
 
 $tor2web->signal('INT');
