@@ -61,6 +61,7 @@ sub one_response {
     }
     if ( 0 == $len ) {
         fail 'Remote host closed connection';
+        $tor2web->kill_kill;
         die;
     }
     return $response;
@@ -98,6 +99,7 @@ is one_response($socket),
 
 ok $socket->close(), 'closed';
 
+$tor2web->kill_kill;
 $tor2web->finish();
 is $tor2web->result(0), 0, 'valgrind ok';
 
