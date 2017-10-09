@@ -95,7 +95,7 @@ ok $socket->print(
   ),
   'host header sent';
 ( $socket, $resp ) = one_response($socket);
-is $resp, $ENV{TTWLANG} eq 'python' ? <<'EOD'
+is $resp, $ENV{TTWLANG} eq 'python' ? <<"EOD"
 HTTP/1.0 200 OK\r
 X-Check-Tor: false\r
 Strict-Transport-Security: max-age=31536000; includeSubDomains\r
@@ -112,7 +112,7 @@ X-Forwarded-Proto: https\r
 Cookie: disclaimer_accepted=true\r
 \r
 EOD
-: <<'EOD', 'host header read';
+: <<"EOD", 'host header read';
 HTTP/1.0 200 Success\r
 Content-Type: text/plain\r
 Content-Length: 81\r
@@ -128,7 +128,7 @@ ok $socket->print(
   ),
   'ok content sent';
 ( $socket, $resp ) = one_response($socket);
-is $resp, $ENV{TTWLANG} eq 'python' ? <<'EOD'
+is $resp, $ENV{TTWLANG} eq 'python' ? <<"EOD"
 HTTP/1.0 200 OK\r
 X-Check-Tor: false\r
 Strict-Transport-Security: max-age=31536000; includeSubDomains\r
@@ -148,7 +148,7 @@ Cookie: disclaimer_accepted=true\r
 ok
 
 EOD
-: <<'EOD', 'host header read';
+: <<"EOD", 'host header read';
 HTTP/1.0 200 Success\r
 Content-Type: text/plain\r
 Content-Length: 98\r
