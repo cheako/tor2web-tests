@@ -87,11 +87,11 @@ SKIP: {
 }
 
 ok $socket->print(
-"GET /index.txt HTTP/1.1\r\nConnection: close\r\nHost: echooooooooooooo.onion.test\r\nContent-Length: 3\r\n\r\nok\n"
+"GET /index.txt HTTP/1.1\r\nConnection: close\r\nCookie: disclaimer_accepted=true\r\nHost: echooooooooooooo.onion.test\r\nContent-Length: 3\r\n\r\nok\n"
   ),
   'ok content sent';
 is one_response($socket),
-"HTTP/1.1 200 Success\r\nContent-Type: text/plain\r\nContent-Length: 98\r\n\r\nGET /index.txt HTTP/1.1\r\nConnection: close\r\nHost: echooooooooooooo.onion\r\nContent-Length: 3\r\n\r\nok\n",
+"HTTP/1.1 200 Success\r\nContent-Type: text/plain\r\nContent-Length: 98\r\n\r\nGET /index.txt HTTP/1.1\r\nConnection: close\r\nCookie: disclaimer_accepted=true\r\nHost: echooooooooooooo.onion\r\nContent-Length: 3\r\n\r\nok\n",
   'ok content read';
 
 SKIP: {
