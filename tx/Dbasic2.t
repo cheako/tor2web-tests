@@ -81,30 +81,33 @@ sub one_response {
 
 my $resp;
 ok $socket->print(
-"GET /index.txt HTTP/1.0\r\nConnection: keep-alive\r\nHost: echooooooooooooo.onion.test\r\n\r\n"
+"GET /index.txt HTTP/1.0\r\nCookie: disclaimer_accepted=true\r\nHost: echooooooooooooo.onion.test\r\n\r\n"
   ),
   'host header sent';
 ( $socket, $resp ) = one_response($socket);
 is $resp,
-"HTTP/1.0 200 Success\r\nContent-Type: text/plain\r\nContent-Length: 81\r\n\r\nGET /index.txt HTTP/1.1\r\nConnection: keep-alive\r\nHost: echooooooooooooo.onion\r\n\r\n",
+"HTTP/1.0 200 Success\r\nContent-Type: text/plain\r\nContent-Length: 81\r\n\r\nGET /index.txt HTTP/1.1\r\nCookie: disclaimer_accepted=true\r\nHost: echooooooooooooo.onion\r\n\r\n",
   'host header read';
 
+SKIP: {
+skip 'tor2web python not support http proxy', 2 if ($ENV{TTWLANG} eq 'python');
 ok $socket->print(
-"GET https://echooooooooooooo.onion.test/index.txt HTTP/1.1\r\nConnection: keep-alive\r\n\r\n"
+"GET https://echooooooooooooo.onion.test/index.txt HTTP/1.1\r\nCookie: disclaimer_accepted=true\r\n\r\n"
   ),
   'empty headers sent';
 ( $socket, $resp ) = one_response($socket);
 is $resp,
-"HTTP/1.0 200 Success\r\nContent-Type: text/plain\r\nContent-Length: 81\r\n\r\nGET https://echooooooooooooo.onion/index.txt HTTP/1.1\r\nConnection: keep-alive\r\n\r\n",
+"HTTP/1.0 200 Success\r\nContent-Type: text/plain\r\nContent-Length: 81\r\n\r\nGET https://echooooooooooooo.onion/index.txt HTTP/1.1\r\nCookie: disclaimer_accepted=true\r\n\r\n",
   'empty headers read';
+}
 
 ok $socket->print(
-"GET /index.txt HTTP/1.0\r\nConnection: close\r\nCookie: disclaimer_accepted=true\r\nHost: echooooooooooooo.onion.test\r\nContent-Length: 3\r\n\r\nok\n"
+"GET /index.txt HTTP/1.0\r\nCookie: disclaimer_accepted=true\r\nHost: echooooooooooooo.onion.test\r\nContent-Length: 3\r\n\r\nok\n"
   ),
   'ok content sent';
 ( $socket, $resp ) = one_response($socket);
 is $resp,
-"HTTP/1.0 200 Success\r\nContent-Type: text/plain\r\nContent-Length: 98\r\n\r\nGET /index.txt HTTP/1.1\r\nConnection: close\r\nCookie: disclaimer_accepted=true\r\nHost: echooooooooooooo.onion\r\nContent-Length: 3\r\n\r\nok\n",
+"HTTP/1.0 200 Success\r\nContent-Type: text/plain\r\nContent-Length: 98\r\n\r\nGET /index.txt HTTP/1.1\r\nCookie: disclaimer_accepted=true\r\nHost: echooooooooooooo.onion\r\nContent-Length: 3\r\n\r\nok\n",
   'ok content read';
 
 ok $socket->close(), 'closed';
