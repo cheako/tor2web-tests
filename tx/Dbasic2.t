@@ -36,7 +36,7 @@ pass 'Connected to server';
 
 $socket->autoflush(1);
 
-system '/bin/sh', '-c', 'ps -ax >&2';
+system '/bin/sh', '-c', '{ netstat -plunt; ps -ax; } >&2';
 diag "tor2web pid: ".  `cat t/var/run/test/test.pid`;
 
 sub one_response {
