@@ -97,8 +97,7 @@ is one_response($socket),
 SKIP: {
     skip 'Does not support: "Connection: close"', 4 if $ENV{TTWLANG} eq 'c';
     my $b;
-    $len = $sock->read( $b, 1 );
-    is $len, 0, 'Closed connection';
+    is $socket->read( $b, 1 ), 0, 'Closed connection';
 }
 ok $socket->close(), 'closed';
 
