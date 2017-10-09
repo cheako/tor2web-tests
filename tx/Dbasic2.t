@@ -37,8 +37,6 @@ pass 'Connected to server';
 
 $socket->autoflush(1);
 
-system '/bin/sh', '-xc', '{ ps -ax; cat t/var/run/test/test.pid; } >&2';
-
 sub one_response {
     my $sock = shift;
     my $len;
@@ -80,19 +78,10 @@ sub one_response {
 }
 
 my $resp;
-ok $socket->print(
-"GET /index.txt HTTP/1.0\r\nCookie: disclaimer_accepted=true\r\nHost: echooooooooooooo.onion.test\r\n\r\n"
-  ),
-  'host header sent';
-( $socket, $resp ) = one_response($socket);
-is $resp,
-"HTTP/1.0 200 Success\r\nContent-Type: text/plain\r\nContent-Length: 81\r\n\r\nGET /index.txt HTTP/1.1\r\nCookie: disclaimer_accepted=true\r\nHost: echooooooooooooo.onion\r\n\r\n",
-  'host header read';
-
 SKIP: {
 skip 'tor2web python not support http proxy', 2 if ($ENV{TTWLANG} eq 'python');
 ok $socket->print(
-"GET https://echooooooooooooo.onion.test/index.txt HTTP/1.1\r\nCookie: disclaimer_accepted=true\r\n\r\n"
+"GET https://echooooooooooooo.onion.test/index.txt HTTP/1.0\r\nCookie: disclaimer_accepted=true\r\n\r\n"
   ),
   'empty headers sent';
 ( $socket, $resp ) = one_response($socket);
@@ -102,12 +91,75 @@ is $resp,
 }
 
 ok $socket->print(
+"GET /index.txt HTTP/.0\r\nCookie: disclaimer_accepted=true\r\nHost: echooooooooooooo.onion.test\r\n\r\n"
+  ),
+  'host header sent';
+( $socket, $resp ) = one_response($socket);
+is $resp, $ENV{TTWLANG} eq 'python' ? <<'EOD'
+HTTP/1.0 200 OK\r
+X-Check-Tor: false\r
+Strict-Transport-Security: max-age=31536000; includeSubDomains\r
+Content-Type: text/plain\r
+Content-Security-Policy: upgrade-insecure-requests\r
+\r
+GET /index.txt HTTP/1.1\r
+Accept-Encoding: gzip, chunked\r
+X-Forwarded-Host: echooooooooooooo.onion.test\r
+Connection: keep-alive\r
+X-Tor2web: 1\r
+Host: echooooooooooooo.onion\r
+X-Forwarded-Proto: https\r
+Cookie: disclaimer_accepted=true\r
+\r
+EOD
+: <<'EOD', 'host header read';
+HTTP/1.0 200 Success\r
+Content-Type: text/plain\r
+Content-Length: 81\r
+\r
+GET /index.txt HTTP/1.1\r
+Cookie: disclaimer_accepted=true\r
+Host: echooooooooooooo.onion\r
+\r
+EOD
+
+ok $socket->print(
 "GET /index.txt HTTP/1.0\r\nCookie: disclaimer_accepted=true\r\nHost: echooooooooooooo.onion.test\r\nContent-Length: 3\r\n\r\nok\n"
   ),
   'ok content sent';
 ( $socket, $resp ) = one_response($socket);
-is $resp,
-"HTTP/1.0 200 Success\r\nContent-Type: text/plain\r\nContent-Length: 98\r\n\r\nGET /index.txt HTTP/1.1\r\nCookie: disclaimer_accepted=true\r\nHost: echooooooooooooo.onion\r\nContent-Length: 3\r\n\r\nok\n",
+is $resp, $ENV{TTWLANG} eq 'python' ? <<'EOD'
+HTTP/1.0 200 OK\r
+X-Check-Tor: false\r
+Strict-Transport-Security: max-age=31536000; includeSubDomains\r
+Content-Type: text/plain\r
+Content-Security-Policy: upgrade-insecure-requests\r
+\r
+GET /index.txt HTTP/1.1\r
+Content-Length: 3\r
+Accept-Encoding: gzip, chunked\r
+X-Forwarded-Host: echooooooooooooo.onion.test\r
+Connection: keep-alive\r
+X-Tor2web: 1\r
+Host: echooooooooooooo.onion\r
+X-Forwarded-Proto: https\r
+Cookie: disclaimer_accepted=true\r
+\r
+ok
+
+EOD
+: <<'EOD', 'host header read';
+HTTP/1.0 200 Success\r
+Content-Type: text/plain\r
+Content-Length: 98\r
+\r
+GET /index.txt HTTP/1.1\r
+Cookie: disclaimer_accepted=true\r
+Host: echooooooooooooo.onion\r
+Content-Length: 3\r
+\r
+ok
+EOD
   'ok content read';
 
 ok $socket->close(), 'closed';
