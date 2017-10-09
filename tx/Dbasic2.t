@@ -69,14 +69,14 @@ ok $socket->print(
     "GET /index.txt HTTP/1.1\r\nConnection: keep-alive\r\nHost: echooooooooooooo.onion.test\r\n\r\n"),
   'host header sent';
 is one_response($socket),
-"HTTP/1.1 200 Success\r\nContent-Type: text/plain\r\nContent-Length: 57\r\n\r\nGET /index.txt HTTP/1.1\r\nConnection: keep-alive\r\nHost: echooooooooooooo.onion\r\n\r\n",
+"HTTP/1.1 200 Success\r\nContent-Type: text/plain\r\nContent-Length: 81\r\n\r\nGET /index.txt HTTP/1.1\r\nConnection: keep-alive\r\nHost: echooooooooooooo.onion\r\n\r\n",
   'host header read';
 
 ok $socket->print(
     "GET https://echooooooooooooo.onion.test/index.txt HTTP/1.1\r\nConnection: keep-alive\r\n\r\n"),
   'empty headers sent';
 is one_response($socket),
-"HTTP/1.1 200 Success\r\nContent-Type: text/plain\r\nContent-Length: 57\r\n\r\nGET https://echooooooooooooo.onion/index.txt HTTP/1.1\r\nConnection: keep-alive\r\n\r\n",
+"HTTP/1.1 200 Success\r\nContent-Type: text/plain\r\nContent-Length: 81\r\n\r\nGET https://echooooooooooooo.onion/index.txt HTTP/1.1\r\nConnection: keep-alive\r\n\r\n",
   'empty headers read';
 
 ok $socket->print(
@@ -84,7 +84,7 @@ ok $socket->print(
   ),
   'ok content sent';
 is one_response($socket),
-"HTTP/1.1 200 Success\r\nContent-Type: text/plain\r\nContent-Length: 79\r\n\r\nGET /index.txt HTTP/1.1\r\nConnection: close\r\nHost: echooooooooooooo.onion\r\nContent-Length: 3\r\n\r\nok\n",
+"HTTP/1.1 200 Success\r\nContent-Type: text/plain\r\nContent-Length: 98\r\n\r\nGET /index.txt HTTP/1.1\r\nConnection: close\r\nHost: echooooooooooooo.onion\r\nContent-Length: 3\r\n\r\nok\n",
   'ok content read';
 
 ok $socket->close(), 'closed';
