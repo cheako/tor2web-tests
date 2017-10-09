@@ -36,8 +36,7 @@ pass 'Connected to server';
 
 $socket->autoflush(1);
 
-system '/bin/sh', '-c', '{ netstat -plunt; ps -ax; } >&2';
-diag "tor2web pid: ".  `cat t/var/run/test/test.pid`;
+system '/bin/sh', '-xc', '{ ps -ax; cat t/var/run/test/test.pid; } >&2';
 
 sub one_response {
     my $sock = shift;
