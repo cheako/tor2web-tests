@@ -5,6 +5,7 @@
 /MYMETA.*
 *.o
 *.pm.tdy
+*.t.bak
 *.bs
 
 # Devel::Cover
