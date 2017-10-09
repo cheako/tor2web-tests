@@ -7,8 +7,9 @@ if [ "$TTWLANG" = c ]; then \
   exe="`python -c \
   'import os, tor2web; print(os.path.abspath(os.path.join(os.path.dirname(tor2web.__file__), '\''t2w.py'\'')))'
   `"
+  export TTW_COVERAGE=python-coverage
   set -x
-  exec python-coverage run "$exe" "$@"
+  exec $TTW_COVERAGE run "$exe" "$@"
   exec strace -e trace=\!open,stat,fstat,lseek,rt_sigaction,mmap,mprotect,munmap,access,ioctl,lstat,brk,futex,madvise,fcntl -f -s 800 python2 "$exe" "$@"
   exec strace -e trace=file -f python2 "$exe" "$@"
 else
