@@ -28,7 +28,7 @@ do {
     && $ctr++ < 4 );
 unless ($socket) {
     fail "Cannot connect to the server: $!";
-    kill 'TERM', `cat t/var/run/test/test.pid`;
+    $tor2web->signal('INT');
     $tor2web->finish();
     die;
 }
@@ -57,7 +57,7 @@ sub one_response {
     }
     if ( 0 == $len ) {
         fail 'Remote host closed connection';
-        kill 'TERM', `cat t/var/run/test/test.pid`;
+        $tor2web->signal('INT');
         $tor2web->finish();
         die;
     }
@@ -100,7 +100,7 @@ SKIP: {
 }
 ok $socket->close(), 'closed';
 
-kill 'TERM', `cat t/var/run/test/test.pid`;
+$tor2web->signal('INT');
 $tor2web->finish();
 is $tor2web->result(0), 0, 'valgrind ok';
 
