@@ -87,7 +87,7 @@ SKIP: {
 }
 
 ok $socket->print(
-"GET /index.txt HTTP/1.1\r\nConnection: close\r\nCookie: disclaimer_accepted=true\r\nHost: echooooooooooooo.onion.test\r\nContent-Length: 3\r\n\r\nok\n"
+"GET /index.txt HTTP/1.0\r\nConnection: close\r\nCookie: disclaimer_accepted=true\r\nHost: echooooooooooooo.onion.test\r\nContent-Length: 3\r\n\r\nok\n"
   ),
   'ok content sent';
 is one_response($socket),
