@@ -1,6 +1,6 @@
 use common::sense;
 
-use Test::More tests => 9;
+use Test::More tests => 10;
 use IPC::Run qw(start);
 
 my $tor2web =
