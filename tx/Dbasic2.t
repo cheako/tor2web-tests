@@ -44,12 +44,14 @@ sub one_response {
     do {
         my $b;
         $len = $sock->read( $b, 1 );
+	diag "Header byte '$b'";
         $response .= $b;
     } while ( 0 < $len && $response !~ /\n\r?\n/m );
     if ( 0 < $len && $response =~ /^Content-Length:\s*([1-9][0-9]*)/mi ) {
         my ( $b, $clen ) = ( undef, $1 );
         while ( 0 < $clen ) {
             $len = $sock->read( $b, $clen );
+	    diag "Content len byte '$b'";
             $response .= $b;
             $clen -= $len;
         }
@@ -58,6 +60,7 @@ sub one_response {
         while ( 0 != $len ) {
             my $b;
             $len = $sock->read( $b, $len );
+	    diag "Content byte '$b'";
             $response .= $b;
         }
         $sock->close();
