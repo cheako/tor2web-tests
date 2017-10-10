@@ -104,7 +104,7 @@ SKIP: {
 }
 
 ok $socket->print(
-"GET /index.txt HTTP/.0\r\nCookie: disclaimer_accepted=true\r\nHost: echooooooooooooo.onion.test\r\n\r\n"
+"GET /index.txt HTTP/1.0\r\nCookie: disclaimer_accepted=true\r\nHost: echooooooooooooo.onion.test\r\n\r\n"
   ),
   'host header sent';
 ( $socket, $resp ) = one_response($socket);
