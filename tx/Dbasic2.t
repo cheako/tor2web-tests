@@ -1,11 +1,17 @@
+use v5.10.1;
 use common::sense;
 
 use Test::More tests => 9;
-use IPC::Run qw(start);
 
-my $tor2web =
-  start( [ '/bin/sh', 't/bin/tor2web', '-c', 't/etc/conf/test.conf' ],
-    undef, '>&2' );
+my $tor2web;
+if ( $ENV{TTW_TARGET} ~~ [ 'python', 'c' ] ) {
+    use IPC::Run qw(start);
+
+    $tor2web =
+      start( [ '/bin/sh', 't/bin/tor2web', '-c', 't/etc/conf/test.conf' ],
+        undef, '>&2' );
+
+}
 
 use IO::Socket::SSL;
 
@@ -29,8 +35,10 @@ do {
     && $ctr++ < 4 );
 unless ($socket) {
     fail "Cannot connect to the server: $!";
-    $tor2web->signal('INT');
-    $tor2web->finish();
+    if ($tor2web) {
+        $tor2web->kill_kill();
+        $tor2web->finish();
+    }
     die;
 }
 pass 'Connected to server';
@@ -44,14 +52,12 @@ sub one_response {
     do {
         my $b;
         $len = $sock->read( $b, 1 );
-	diag "Header byte '$b'";
         $response .= $b;
     } while ( 0 < $len && $response !~ /\n\r?\n/m );
     if ( 0 < $len && $response =~ /^Content-Length:\s*([1-9][0-9]*)/mi ) {
         my ( $b, $clen ) = ( undef, $1 );
         while ( 0 < $clen ) {
             $len = $sock->read( $b, $clen );
-	    diag "Content len byte '$b'";
             $response .= $b;
             $clen -= $len;
         }
@@ -60,21 +66,24 @@ sub one_response {
         while ( 0 != $len ) {
             my $b;
             $len = $sock->read( $b, $len );
-	    diag "Content byte '$b'";
             $response .= $b;
         }
         $sock->close();
         $sock = new IO::Socket::SSL(@sockopts);
         unless ($sock) {
             diag "Cannot connect to the server: $!";
-            $tor2web->signal('INT');
-            $tor2web->finish();
+            if ($tor2web) {
+                $tor2web->kill_kill();
+                $tor2web->finish();
+            }
             die;
         }
     } elsif ( 0 == $len ) {
         fail 'Remote host closed connection';
-        $tor2web->signal('INT');
-        $tor2web->finish();
+        if ($tor2web) {
+            $tor2web->kill_kill();
+            $tor2web->finish();
+        }
         die;
     }
     return ( $sock, $response );
@@ -82,15 +91,16 @@ sub one_response {
 
 my $resp;
 SKIP: {
-skip 'tor2web python not support http proxy', 2 if ($ENV{TTWLANG} eq 'python');
-ok $socket->print(
+    skip 'tor2web python not support http proxy', 2
+      if ( $ENV{TTW_TARGET} eq 'python' );
+    ok $socket->print(
 "GET https://echooooooooooooo.onion.test/index.txt HTTP/1.0\r\nCookie: disclaimer_accepted=true\r\n\r\n"
-  ),
-  'empty headers sent';
-( $socket, $resp ) = one_response($socket);
-is $resp,
+      ),
+      'empty headers sent';
+    ( $socket, $resp ) = one_response($socket);
+    is $resp,
 "HTTP/1.0 200 Success\r\nContent-Type: text/plain\r\nContent-Length: 81\r\n\r\nGET https://echooooooooooooo.onion/index.txt HTTP/1.1\r\nCookie: disclaimer_accepted=true\r\n\r\n",
-  'empty headers read';
+      'empty headers read';
 }
 
 ok $socket->print(
@@ -98,7 +108,8 @@ ok $socket->print(
   ),
   'host header sent';
 ( $socket, $resp ) = one_response($socket);
-is $resp, $ENV{TTWLANG} eq 'python' ? <<"EOD"
+is $resp, $ENV{TTW_TARGET} eq 'python'
+  ? <<"EOD"
 HTTP/1.0 200 OK\r
 X-Check-Tor: false\r
 Strict-Transport-Security: max-age=31536000; includeSubDomains\r
@@ -115,7 +126,7 @@ X-Forwarded-Proto: https\r
 Cookie: disclaimer_accepted=true\r
 \r
 EOD
-: <<"EOD", 'host header read';
+  : <<"EOD", 'host header read';
 HTTP/1.0 200 Success\r
 Content-Type: text/plain\r
 Content-Length: 81\r
@@ -131,7 +142,8 @@ ok $socket->print(
   ),
   'ok content sent';
 ( $socket, $resp ) = one_response($socket);
-is $resp, $ENV{TTWLANG} eq 'python' ? <<"EOD"
+is $resp, $ENV{TTW_TARGET} eq 'python'
+  ? <<"EOD"
 HTTP/1.0 200 OK\r
 X-Check-Tor: false\r
 Strict-Transport-Security: max-age=31536000; includeSubDomains\r
@@ -151,7 +163,7 @@ Cookie: disclaimer_accepted=true\r
 ok
 
 EOD
-: <<"EOD", 'host header read';
+  : <<"EOD", 'ok content read';
 HTTP/1.0 200 Success\r
 Content-Type: text/plain\r
 Content-Length: 98\r
@@ -163,13 +175,15 @@ Content-Length: 3\r
 \r
 ok
 EOD
-  'ok content read';
 
 ok $socket->close(), 'closed';
 
-$tor2web->signal('INT');
-$tor2web->finish();
-is $tor2web->result(0), 0, 'valgrind ok';
+SKIP: {
+    skip 'Not needed for remote targets', 1 unless ($tor2web);
+    $tor2web->kill_kill();
+    $tor2web->finish();
+    is $tor2web->result(0), 0, 'valgrind ok';
+}
 
 exit 0;
 

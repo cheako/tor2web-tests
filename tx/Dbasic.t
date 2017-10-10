@@ -3,7 +3,7 @@ use common::sense;
 use Test::More tests => 12;
 
 SKIP: {
-    skip 'Temp for testing.', 12 if $ENV{TTWLANG} eq 'python';
+    skip 'Temp for testing.', 12 if $ENV{TTW_TARGET} eq 'python';
 
     use IPC::Run qw(start);
 

@@ -1,9 +1,9 @@
-if [ "$TTWLANG" = c ]; then \
+if [ "$TTW_TARGET" = c ]; then \
   exec valgrind --leak-check=full --error-exitcode=63 src/tor2web "$@"
   exec strace -f -s 200 src/tor2web "$@"
   exec src/tor2web "$@"
   # Does not show strings exec ltrace -l libgnutls.so* src/tor2web "$@"
-  elif [ "$TTWLANG" = python ]; then \
+  elif [ "$TTW_TARGET" = python ]; then \
   exe="`python -c \
   'import os, tor2web; print(os.path.abspath(os.path.join(os.path.dirname(tor2web.__file__), '\''t2w.py'\'')))'
   `"
@@ -13,6 +13,6 @@ if [ "$TTWLANG" = c ]; then \
   exec strace -e trace=\!open,stat,fstat,lseek,rt_sigaction,mmap,mprotect,munmap,access,ioctl,lstat,brk,futex,madvise,fcntl -f -s 800 python2 "$exe" "$@"
   exec strace -e trace=file -f python2 "$exe" "$@"
 else
-  echo "Lang \"$TTWLANG\" not supported." >&2
+  echo "Lang \"$TTW_TARGET\" not supported." >&2
   exit 1
 fi

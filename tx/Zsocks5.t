@@ -1,6 +1,12 @@
+use v5.10.1;
 use common::sense;
 
-use Test::More;
+unless ( $ENV{TTW_TARGET} ~~ [ 'python', 'c' ] ) {
+    use Test::More;
+    plan tests => 1;
+  SKIP: { skip 'Not needed for remote testing', 1; }
+    exit 0;
+}
 
 use IO::Socket::Socks;
 
