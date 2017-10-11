@@ -21,6 +21,7 @@ $SIG{'HUP'} = 'IGNORE';
 use AnyEvent;
 use AnyEvent::Handle;
 use AnyEvent::Socket;
+require HTTP::Request;
 
 my @keep;
 
@@ -29,14 +30,12 @@ my @personalities = (
         name  => 'echo',
         class => 'HTTP',
         cb    => sub {
-		warn 'personalities cb';
-            $_[0]->push_write(<<"EOR");
-HTTP/1.1 200 Success\r
+            $_[0]->push_write(
+qq~HTTP/1.1 200 Success\r
 Content-Type: text/plain\r
 Content-Length: ${[length $_[0]->{____}->{raw_request}]}->[0]\r
 \r
-$_[0]->{____}->{raw_request}
-EOR
+$_[0]->{____}->{raw_request}~);
         },
     },
 );
@@ -45,18 +44,16 @@ sub HTTP_start {
     my $self = shift;
     $self->push_read(
         line => sub {
-            warn $_[1];
             $_[0]->{____}->{raw_request} = "$_[1]$_[2]";
-    $_[1] = '';
-    $_[2] = '';
+            $_[1]                        = '';
+            $_[2]                        = '';
         }
     );
-    $self->push_read( line => &HTTP_hdr_read );
+    $self->push_read( line => \&HTTP_hdr_read );
 }
 
 sub HTTP_have_hdr {
     my $self = shift;
-    require HTTP::Request;
     my $r               = HTTP::Request->parse( $self->{____}->{raw_request} );
     my @content_lengths = $r->header('Content-Length');
     my $content_length;
@@ -79,7 +76,6 @@ sub HTTP_have_hdr {
             }
         );
     } else {
-	warn;
         $self->{____}->{request} = $r;
         $self->{____}->{personality}->{cb}($self);
         HTTP_start($self);
@@ -88,13 +84,12 @@ sub HTTP_have_hdr {
 
 sub HTTP_hdr_read {
     my $self = shift;
-    
-    warn $_[0];
+
     $self->{____}->{raw_request} .= "$_[0]$_[1]";
     if ( length $_[0] == 0 ) {
         HTTP_have_hdr($self);
     } else {
-        $self->unshift_read( line => &HTTP_hdr_read );
+        $self->unshift_read( line => \&HTTP_hdr_read );
     }
     $_[0] = '';
     $_[1] = '';
@@ -114,13 +109,13 @@ foreach my $personality (@personalities) {
             my ( $hdl, $fatal, $msg ) = @_;
             warn $msg;
             $keep[ $hdl->{____}->{keepid} ] = undef;
-            $hdl->destroy;
+            $hdl->destroy();
           },
-          timeout    => $personality->{timeout}    // 5,
+	  timeout    => $personality->{timeout}    // 5,
           on_timeout => $personality->{on_timeout} // sub {
             my $hdl = shift;
             $keep[ $hdl->{____}->{keepid} ] = undef;
-            $hdl->destroy;
+            $hdl->destroy();
           },
           ;
         $keep[-1]->{____}->{keepid}      = $#keep;
