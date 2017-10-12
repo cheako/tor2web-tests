@@ -112,9 +112,10 @@ is $resp, $ENV{TTW_TARGET} eq 'python'
   ? <<"EOD"
 HTTP/1.0 200 OK\r
 X-Check-Tor: false\r
-Strict-Transport-Security: max-age=31536000; includeSubDomains\r
-Content-Type: text/plain\r
 Content-Security-Policy: upgrade-insecure-requests\r
+Strict-Transport-Security: max-age=31536000; includeSubDomains\r
+Server: Mojolicious (Perl)\r
+Content-Type: text/plain\r
 \r
 GET /index.txt HTTP/1.1\r
 Accept-Encoding: gzip, chunked\r
@@ -146,9 +147,10 @@ is $resp, $ENV{TTW_TARGET} eq 'python'
   ? <<"EOD"
 HTTP/1.0 200 OK\r
 X-Check-Tor: false\r
-Strict-Transport-Security: max-age=31536000; includeSubDomains\r
-Content-Type: text/plain\r
 Content-Security-Policy: upgrade-insecure-requests\r
+Strict-Transport-Security: max-age=31536000; includeSubDomains\r
+Server: Mojolicious (Perl)\r
+Content-Type: text/plain\r
 \r
 GET /index.txt HTTP/1.1\r
 Content-Length: 3\r
