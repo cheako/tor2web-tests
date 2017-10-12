@@ -1,0 +1,4 @@
+[submodule "htstress"]
+	path = htstress
+	url = https://github.com/cheako/htstress.git
+	branch = tor2web
