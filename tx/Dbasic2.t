@@ -10,7 +10,6 @@ if ( $ENV{TTW_TARGET} ~~ [ 'python', 'c' ] ) {
     $tor2web =
       start( [ '/bin/sh', 't/bin/tor2web', '-c', 't/etc/conf/test.conf' ],
         undef, '>&2' );
-
 }
 
 use IO::Socket::SSL;
@@ -62,6 +61,7 @@ sub one_response {
             $clen -= $len;
         }
     }
+    $response =~ s/^Date:.*$//m;
     if ( 0 != $len && $response =~ m%^HTTP/1\.0% ) {
         while ( 0 != $len ) {
             my $b;
