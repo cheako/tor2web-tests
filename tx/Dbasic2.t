@@ -61,7 +61,7 @@ sub one_response {
             $clen -= $len;
         }
     }
-    $response =~ s/^Date:.*$//m;
+    $response =~ s/^Date:[^\n]*\n//im;
     if ( 0 != $len && $response =~ m%^HTTP/1\.0% ) {
         while ( 0 != $len ) {
             my $b;
@@ -99,8 +99,14 @@ SKIP: {
       'empty headers sent';
     ( $socket, $resp ) = one_response($socket);
     is $resp,
-"HTTP/1.0 200 Success\r\nContent-Type: text/plain\r\nContent-Length: 81\r\n\r\nGET https://echooooooooooooo.onion/index.txt HTTP/1.1\r\nCookie: disclaimer_accepted=true\r\n\r\n",
-      'empty headers read';
+qq~HTTP/1.0 200 Success\r
+Content-Type: text/plain\r
+Content-Length: 81\r
+\r
+GET https://echooooooooooooo.onion/index.txt HTTP/1.1\r
+Cookie: disclaimer_accepted=true\r
+\r
+~, 'empty headers read';
 }
 
 ok $socket->print(
@@ -109,8 +115,7 @@ ok $socket->print(
   'host header sent';
 ( $socket, $resp ) = one_response($socket);
 is $resp, $ENV{TTW_TARGET} eq 'python'
-  ? <<"EOD"
-HTTP/1.0 200 OK\r
+  ? qq~HTTP/1.0 200 OK\r
 X-Check-Tor: false\r
 Content-Security-Policy: upgrade-insecure-requests\r
 Strict-Transport-Security: max-age=31536000; includeSubDomains\r
@@ -126,9 +131,7 @@ Host: echooooooooooooo.onion\r
 X-Forwarded-Proto: https\r
 Cookie: disclaimer_accepted=true\r
 \r
-EOD
-  : <<"EOD", 'host header read';
-HTTP/1.0 200 Success\r
+~ : qq~HTTP/1.0 200 Success\r
 Content-Type: text/plain\r
 Content-Length: 81\r
 \r
@@ -136,7 +139,7 @@ GET /index.txt HTTP/1.1\r
 Cookie: disclaimer_accepted=true\r
 Host: echooooooooooooo.onion\r
 \r
-EOD
+~, 'host header read';
 
 ok $socket->print(
 "GET /index.txt HTTP/1.0\r\nCookie: disclaimer_accepted=true\r\nHost: echooooooooooooo.onion.test\r\nContent-Length: 3\r\n\r\nok\n"
@@ -144,8 +147,7 @@ ok $socket->print(
   'ok content sent';
 ( $socket, $resp ) = one_response($socket);
 is $resp, $ENV{TTW_TARGET} eq 'python'
-  ? <<"EOD"
-HTTP/1.0 200 OK\r
+  ? qq~HTTP/1.0 200 OK\r
 X-Check-Tor: false\r
 Content-Security-Policy: upgrade-insecure-requests\r
 Strict-Transport-Security: max-age=31536000; includeSubDomains\r
@@ -163,10 +165,7 @@ X-Forwarded-Proto: https\r
 Cookie: disclaimer_accepted=true\r
 \r
 ok
-
-EOD
-  : <<"EOD", 'ok content read';
-HTTP/1.0 200 Success\r
+~ : qq~HTTP/1.0 200 Success\r
 Content-Type: text/plain\r
 Content-Length: 98\r
 \r
@@ -176,7 +175,7 @@ Host: echooooooooooooo.onion\r
 Content-Length: 3\r
 \r
 ok
-EOD
+~, 'ok content read';
 
 ok $socket->close(), 'closed';
 
