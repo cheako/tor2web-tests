@@ -10,7 +10,7 @@ my $tor2web =
 
 sleep 4;
 chdir 't/htstress';
-system './build.sh; ltrace -s 800 ./htstress -n 5000 -c 50 -t 4 -h echooooooooooooo.onion http://127.0.0.1:8444/';
+system './build.sh; strace -s 800 ./htstress -n 5000 -c 50 -t 4 -h echooooooooooooo.onion http://127.0.0.1:8444/';
 
 $tor2web->kill_kill;
 is $tor2web->result(0), 0, 'valgrind ok';
