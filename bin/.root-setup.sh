@@ -5,5 +5,6 @@ apt-get -yq update &&
 	--allow-downgrades --allow-remove-essential \
 	--allow-change-held-packages install \
 	daemon socat libmojolicious-perl \
+	ltrace \
 	libclass-method-modifiers-perl
 
