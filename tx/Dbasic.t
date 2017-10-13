@@ -101,7 +101,7 @@ Cookie: disclaimer_accepted=true\r
 ~), 'empty headers sent';
     ( $socket, $resp ) = one_response($socket);
     is $resp,
-qq~HTTP/1.0 200 OK\r
+qq~HTTP/1.1 200 OK\r
 Content-Type: text/plain\r
 Server: Mojolicious (Perl)\r
 Content-Length: 91\r
@@ -137,9 +137,9 @@ Host: echooooooooooooo.onion\r
 X-Forwarded-Proto: https\r
 Cookie: disclaimer_accepted=true\r
 \r
-~ : qq~HTTP/1.0 200 OK\r
-Server: Mojolicious (Perl)\r
+~ : qq~HTTP/1.1 200 OK\r
 Content-Length: 91\r
+Server: Mojolicious (Perl)\r
 Content-Type: text/plain\r
 \r
 GET /index.txt HTTP/1.1\r
@@ -176,10 +176,10 @@ X-Forwarded-Proto: https\r
 Cookie: disclaimer_accepted=true\r
 \r
 ok
-~ : qq~HTTP/1.0 200 OK\r
+~ : qq~HTTP/1.1 200 OK\r
 Content-Type: text/plain\r
-Content-Length: 113\r
 Server: Mojolicious (Perl)\r
+Content-Length: 113\r
 \r
 GET /index.txt HTTP/1.1\r
 Cookie: disclaimer_accepted=true\r
