@@ -10,7 +10,7 @@ my $tor2web =
 
 sleep 4;
 chdir 't/htstress';
-system './build.sh; ./htstress -n 5000 -c 50 -t 4 -h echooooooooooooo.onion http://127.0.0.1:8444/';
+system './build.sh; ./htstress -n 5000 -c 50 -t 4 -u /var/tmp/tor2web.sock http://echooooooooooooo.onion/';
 
 $tor2web->kill_kill;
 is $tor2web->result(0), 0, 'valgrind ok';
