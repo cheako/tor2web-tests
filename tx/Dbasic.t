@@ -35,6 +35,7 @@ do {
 unless ($socket) {
     fail "Cannot connect to the server: $!";
     if ($tor2web) {
+	sleep 3;
         $tor2web->kill_kill();
         $tor2web->finish();
     }
@@ -73,6 +74,7 @@ sub one_response {
         unless ($sock) {
             diag "Cannot connect to the server: $!";
             if ($tor2web) {
+	        sleep 3;
                 $tor2web->kill_kill();
                 $tor2web->finish();
             }
@@ -81,6 +83,7 @@ sub one_response {
     } elsif ( 0 == $len ) {
         fail 'Remote host closed connection';
         if ($tor2web) {
+	    sleep 3;
             $tor2web->kill_kill();
             $tor2web->finish();
         }
@@ -193,6 +196,7 @@ ok $socket->close(), 'closed';
 
 SKIP: {
     skip 'Not needed for remote targets', 1 unless ($tor2web);
+    sleep 3;
     $tor2web->kill_kill();
     $tor2web->finish();
     is $tor2web->result(0), 0, 'valgrind ok';

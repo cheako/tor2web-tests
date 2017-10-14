@@ -12,6 +12,8 @@ sleep 4;
 chdir 't/htstress';
 system './build.sh; ./htstress -n 5000 -c 50 -t 4 -h echooooooooooooo.onion http://127.0.0.1:8081/';
 
+# Cool down
+sleep 30;
 $tor2web->kill_kill;
 is $tor2web->result(0), 0, 'valgrind ok';
 
