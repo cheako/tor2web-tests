@@ -1,4 +1,3 @@
-use v5.10.1;
 use common::sense;
 
 use Test::More tests => 8;
