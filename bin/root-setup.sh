@@ -1,4 +1,4 @@
-#!/bin/sh -ex
+#!/bin/sh -x
 
 apt-get -yq update &&
 	apt-get -yq --no-install-suggests --no-install-recommends \
@@ -10,6 +10,11 @@ apt-get -yq update &&
 	libclass-method-modifiers-perl
 
 cd t/httperf
-aclocal -W all && automake -v -W all --add-missing && autoconf -v -W all
+aclocal -W all
+automake -v -W all --add-missing
+autoconf -v -W all
+aclocal -W all
+automake -v -W all --add-missing
+autoconf -v -W all
 ./configure
 make
