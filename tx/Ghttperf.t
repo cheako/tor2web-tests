@@ -2,7 +2,7 @@ use common::sense;
 
 use Test::More tests => 1;
 
-chdir 't/httperf';
+chdir 't/httperf/src';
 my $sys;
 if (
     0 == (
@@ -17,7 +17,7 @@ if (
         '--timeout=5',
         '--burst-length=5',
         '--num-calls=50',
-        '--verbosea'
+        '--verbose',
     )
   )
 {
