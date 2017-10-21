@@ -6,7 +6,7 @@ apt-get -yq update &&
 	--allow-change-held-packages install \
 	daemon socat libmojolicious-perl \
 	ltrace \
-	libssl-dev \
+	libssl1.0-dev \
 	libtool \
 	libclass-method-modifiers-perl
 
