@@ -36,8 +36,12 @@ $builder->todo_output( \$output );
 my $tor2web;
 if ( $ENV{TTW_TARGET} ~~ [ 'python', 'c' ] ) {
     use IPC::Run qw(start);
-    $tor2web =
-      start( [ '/bin/sh', 't/bin/tor2web', '-c', 't/etc/conf/test.conf' ], '<', '/dev/null', '>>', '/var/tmp/tor2web-test.log', '2>>', '/var/tmp/tor2web-test.log' );
+    $tor2web = start(
+        [ '/bin/sh', 't/bin/tor2web', '-c', 't/etc/conf/test.conf' ], '<',
+        '/dev/null',                 '>>',
+        '/var/tmp/tor2web-test.log', '2>>',
+        '/var/tmp/tor2web-test.log'
+    );
 }
 
 my $tests = 0;
@@ -168,14 +172,14 @@ my %tree = (
     'exit:25' => sub {
         my $client = shift;
 
-                    $tests++;
-SKIP: {
-    skip 'Not needed for remote targets', 1 unless ($tor2web);
-    sleep 3;
-    $tor2web->kill_kill();
-    $tor2web->finish();
-    is $tor2web->result(0), 0, 'valgrind ok';
-}
+        $tests++;
+      SKIP: {
+            skip 'Not needed for remote targets', 1 unless ($tor2web);
+            sleep 3;
+            $tor2web->kill_kill();
+            $tor2web->finish();
+            is $tor2web->result(0), 0, 'valgrind ok';
+        }
 
         done_testing($tests);
         $client->print($output);

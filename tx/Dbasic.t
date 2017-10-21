@@ -74,13 +74,14 @@ SKIP: {
       if ( $ENV{TTW_TARGET} eq 'python' );
 
     ok $socket->print(
-qq~GET https://echooooooooooooo.onion.test/index.txt HTTP/1.0\r
+        qq~GET https://echooooooooooooo.onion.test/index.txt HTTP/1.0\r
 Cookie: disclaimer_accepted=true\r
 \r
-~), 'empty headers sent';
+~
+      ),
+      'empty headers sent';
     ( $socket, $resp ) = one_response($socket);
-    is $resp,
-qq~HTTP/1.1 200 OK\r
+    is $resp, qq~HTTP/1.1 200 OK\r
 Content-Type: text/plain\r
 Server: Mojolicious (Perl)\r
 Content-Length: 91\r
@@ -93,11 +94,13 @@ Cookie: disclaimer_accepted=true\r
 }
 
 ok $socket->print(
-qq~GET /index.txt HTTP/1.0\r
+    qq~GET /index.txt HTTP/1.0\r
 Cookie: disclaimer_accepted=true\r
 Host: echooooooooooooo.onion.test\r
 \r
-~), 'host header sent';
+~
+  ),
+  'host header sent';
 ( $socket, $resp ) = one_response($socket);
 is $resp, $ENV{TTW_TARGET} eq 'python'
   ? qq~HTTP/1.0 200 OK\r
@@ -116,7 +119,8 @@ Host: echooooooooooooo.onion\r
 X-Forwarded-Proto: https\r
 Cookie: disclaimer_accepted=true\r
 \r
-~ : qq~HTTP/1.1 200 OK\r
+~
+  : qq~HTTP/1.1 200 OK\r
 Content-Length: 91\r
 Server: Mojolicious (Perl)\r
 Content-Type: text/plain\r
@@ -128,13 +132,15 @@ Host: echooooooooooooo.onion\r
 ~, 'host header read';
 
 ok $socket->print(
-qq~GET /index.txt HTTP/1.0\r
+    qq~GET /index.txt HTTP/1.0\r
 Cookie: disclaimer_accepted=true\r
 Host: echooooooooooooo.onion.test\r
 Content-Length: 3\r
 \r
 ok
-~), 'ok content sent';
+~
+  ),
+  'ok content sent';
 ( $socket, $resp ) = one_response($socket);
 is $resp, $ENV{TTW_TARGET} eq 'python'
   ? qq~HTTP/1.0 200 OK\r
@@ -155,7 +161,8 @@ X-Forwarded-Proto: https\r
 Cookie: disclaimer_accepted=true\r
 \r
 ok
-~ : qq~HTTP/1.1 200 OK\r
+~
+  : qq~HTTP/1.1 200 OK\r
 Content-Type: text/plain\r
 Server: Mojolicious (Perl)\r
 Content-Length: 113\r
