@@ -1,16 +1,10 @@
 use common::sense;
 
 use open ':std', ':encoding(utf8)';
-use Test::More tests => 12;
+use Test::More tests => 11;
 
 SKIP: {
-    skip 'Temp for testing.', 12 if $ENV{TTW_TARGET} eq 'python';
-
-    use IPC::Run qw(start);
-
-    my $tor2web =
-      start( [ '/bin/sh', 't/bin/tor2web', '-c', 't/etc/conf/test.conf' ],
-        undef, '>&2' );
+    skip 'Temp for testing.', 11 if $ENV{TTW_TARGET} eq 'python';
 
     use IO::Socket::SSL;
 
@@ -33,7 +27,6 @@ SKIP: {
         && $ctr++ < 4 );
     unless ($socket) {
         fail "Cannot connect to the server: $!";
-        $tor2web->kill_kill;
         die;
     }
     pass 'Connected to server';
@@ -65,7 +58,6 @@ SKIP: {
         }
         if ( 0 == $len ) {
             fail 'Remote host closed connection';
-            $tor2web->kill_kill;
             die;
         }
         return $response;
@@ -102,10 +94,6 @@ SKIP: {
       'ok 1.1 read';
 
     ok $socket->close(), 'closed';
-
-    $tor2web->kill_kill;
-    $tor2web->finish();
-    is $tor2web->result(0), 0, 'valgrind ok';
 
 }
 

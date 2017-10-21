@@ -1,4 +1,3 @@
-[submodule "htstress"]
-	path = htstress
-	url = https://github.com/cheako/htstress.git
-	branch = tor2web
+[submodule "httperf"]
+	path = httperf
+	url = https://github.com/httperf/httperf.git

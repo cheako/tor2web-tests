@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/sh -ex
 
 apt-get -yq update &&
 	apt-get -yq --no-install-suggests --no-install-recommends \
@@ -6,5 +6,10 @@ apt-get -yq update &&
 	--allow-change-held-packages install \
 	daemon socat libmojolicious-perl \
 	ltrace \
+	libssl-dev \
 	libclass-method-modifiers-perl
 
+cd t/httperf
+autoreconf -i
+./configure
+make

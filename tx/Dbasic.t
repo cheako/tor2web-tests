@@ -1,16 +1,7 @@
 use v5.10.1;
 use common::sense;
 
-use Test::More tests => 9;
-
-my $tor2web;
-if ( $ENV{TTW_TARGET} ~~ [ 'python', 'c' ] ) {
-    use IPC::Run qw(start);
-
-    $tor2web =
-      start( [ '/bin/sh', 't/bin/tor2web', '-c', 't/etc/conf/test.conf' ],
-        undef, '>&2' );
-}
+use Test::More tests => 8;
 
 use IO::Socket::SSL;
 
@@ -34,11 +25,6 @@ do {
     && $ctr++ < 4 );
 unless ($socket) {
     fail "Cannot connect to the server: $!";
-    if ($tor2web) {
-	sleep 3;
-        $tor2web->kill_kill();
-        $tor2web->finish();
-    }
     die;
 }
 pass 'Connected to server';
@@ -73,20 +59,10 @@ sub one_response {
         $sock = new IO::Socket::SSL(@sockopts);
         unless ($sock) {
             diag "Cannot connect to the server: $!";
-            if ($tor2web) {
-	        sleep 3;
-                $tor2web->kill_kill();
-                $tor2web->finish();
-            }
             die;
         }
     } elsif ( 0 == $len ) {
         fail 'Remote host closed connection';
-        if ($tor2web) {
-	    sleep 3;
-            $tor2web->kill_kill();
-            $tor2web->finish();
-        }
         die;
     }
     return ( $sock, $response );
@@ -193,14 +169,6 @@ ok
 ~, 'ok content read';
 
 ok $socket->close(), 'closed';
-
-SKIP: {
-    skip 'Not needed for remote targets', 1 unless ($tor2web);
-    sleep 3;
-    $tor2web->kill_kill();
-    $tor2web->finish();
-    is $tor2web->result(0), 0, 'valgrind ok';
-}
 
 exit 0;
 
