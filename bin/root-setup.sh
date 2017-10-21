@@ -7,14 +7,12 @@ apt-get -yq update &&
 	daemon socat libmojolicious-perl \
 	ltrace \
 	libssl-dev \
+	libtool \
 	libclass-method-modifiers-perl
 
 cd t/httperf
-aclocal -W all
-automake -v -W all --add-missing
-autoconf -v -W all
-aclocal -W all
-automake -v -W all --add-missing
-autoconf -v -W all
+libtoolize --force
+autoreconf -i
+automake
 ./configure
 make
