@@ -10,6 +10,6 @@ apt-get -yq update &&
 	libclass-method-modifiers-perl
 
 cd t/httperf
-autoreconf -i
+aclocal -W all && automake -v -W all --add-missing && autoconf -v -W all
 ./configure
 make
