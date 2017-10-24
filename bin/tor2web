@@ -1,7 +1,5 @@
 if [ "$TTW_TARGET" = c ]; then \
-  exec valgrind --leak-check=full --error-exitcode=63 src/tor2web "$@"
-  exec strace -f -s 200 src/tor2web "$@"
-  exec src/tor2web "$@"
+  exec ${TTW_STRACE:-valgrind --leak-check=full --error-exitcode=63} src/tor2web "$@"
   # Does not show strings exec ltrace -l libgnutls.so* src/tor2web "$@"
   elif [ "$TTW_TARGET" = python ]; then \
   exe="`python -c \

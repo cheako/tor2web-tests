@@ -16,4 +16,3 @@ autoreconf -i
 automake
 ./configure
 make
-find -name httperf
