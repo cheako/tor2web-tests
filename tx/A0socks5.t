@@ -15,7 +15,7 @@ use constant PIDFILE => '/tmp/socksserver.pid';
 my $d = Proc::Daemon->new(
     pid_file      => PIDFILE,
     work_dir      => '.',
-    dont_close_fh => ['STDERR'],
+    dont_close_fd => [2],
 );
 die 'Already running' unless ( 0 == ( -r PIDFILE ? $d->Status(PIDFILE) : 0 ) );
 
@@ -39,7 +39,7 @@ if ( $ENV{TTW_TARGET} ~~ [ 'python', 'c' ] ) {
     use IPC::Run qw(start);
     $tor2web =
       start( [ '/bin/sh', 't/bin/tor2web', '-c', 't/etc/conf/test.conf' ],
-        '/dev/null', \*STDERR, \*STDERR );
+        '<', \undef, '>&', '/dev/stderr' );
 }
 
 my $tests = 0;
