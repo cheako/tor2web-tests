@@ -1,3 +1,5 @@
+#!/usr/bin/env perl
+
 use common::sense;
 
 use Test::More tests => 8;
