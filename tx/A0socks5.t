@@ -12,12 +12,12 @@ unless ( $ENV{TTW_TARGET} ~~ [ 'python', 'c' ] ) {
 use Proc::Daemon;
 use constant PIDFILE => '/tmp/socksserver.pid';
 
-open(my $olderr, '>&', \*STDERR) or die "Can't dup STDERR: $!";
+open( my $olderr, '>&', \*STDERR ) or die "Can't dup STDERR: $!";
 
 my $d = Proc::Daemon->new(
     pid_file      => PIDFILE,
     work_dir      => '.',
-    dont_close_fh => ['$main::olderr'],
+    dont_close_fh => [$olderr],
 );
 die 'Already running' unless ( 0 == ( -r PIDFILE ? $d->Status(PIDFILE) : 0 ) );
 
@@ -30,7 +30,7 @@ unless ( 0 == $k ) {
     exit 0;
 }
 
-open(STDERR, '>&', $olderr) or die "Can't dup olderr: $!";
+open( STDERR, '>&', $olderr ) or die "Can't dup olderr: $!";
 
 my $output;
 my $builder = Test::More->builder;
