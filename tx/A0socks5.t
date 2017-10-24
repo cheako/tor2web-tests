@@ -32,9 +32,6 @@ unless ( 0 == $k ) {
 
 my $output;
 my $builder = Test::More->builder;
-    close $builder->output;
-    close $builder->failure_output;
-    close $builder->todo_output;
 $builder->output( \$output );
 $builder->failure_output( \$output );
 $builder->todo_output( \$output );
