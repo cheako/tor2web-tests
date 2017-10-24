@@ -22,8 +22,6 @@ print <$s>;
 
 $s->close();
 
-system 'cat /var/tmp/tor2web-test.log >&2';
-
 exit 0;
 
 1;
