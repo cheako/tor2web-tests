@@ -21,5 +21,5 @@ MAINTAINERCLEANFILES	= Makefile.in
 SUBDIRS = tx
 
 TEST_LOG_DRIVER = env AM_TAP_AWK='$(AWK)' $(SHELL) $(top_srcdir)/.tap-driver.sh
-TESTS = $(sort $(wildcard *.t))
+TESTS = A0socks5.t A3socks5.t Zsocks5.t
 EXTRA_DIST = $(TESTS)
