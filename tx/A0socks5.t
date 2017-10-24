@@ -25,15 +25,14 @@ my $k = $d->Init();
 unless ( 0 == $k ) {
     plan tests => 1;
     ok $k, "Started Daemon at $k";
-    my $builder = Test::More->builder;
-    close $builder->output;
-    close $builder->failure_output;
-    close $builder->todo_output;
     exit 0;
 }
 
 my $output;
 my $builder = Test::More->builder;
+    close $builder->output;
+    close $builder->failure_output;
+    close $builder->todo_output;
 $builder->output( \$output );
 $builder->failure_output( \$output );
 $builder->todo_output( \$output );
