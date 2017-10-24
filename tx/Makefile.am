@@ -19,6 +19,6 @@
 MAINTAINERCLEANFILES	= Makefile.in
 
 TEST_LOG_DRIVER = env AM_TAP_AWK='$(AWK)' $(SHELL) \
-		  $(top_srcdir)/.tap-driver.sh --expect-failure=yes
+                  $(top_srcdir)/.tap-driver.sh --expect-failure=yes
 TESTS = $(sort $(wildcard *.t))
 EXTRA_DIST = $(TESTS)
