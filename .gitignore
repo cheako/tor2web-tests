@@ -42,4 +42,5 @@ inc/
 /tx/Makefile
 /tx/Makefile.in
 /var/run/test/test.pid
-
+/test-suite.log
+/tx/test-suite.log
