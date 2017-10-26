@@ -4,7 +4,17 @@ use common::sense;
 
 use Test::More tests => 1;
 
-chdir 't/httperf/src';
+my $httperfdir = 't/httperf/src';
+if ( !-d 't' ) {
+    if ( -d '../t' ) {
+        $httperfdir = "../$httperfdir ";
+    } elsif ( -d '../../t' ) {
+        $httperfdir = "../../$httperfdir ";
+    } else {
+        die q(Can't find test folder.);
+    }
+}
+chdir $httperfdir;
 my $sys;
 if (
     0 == (

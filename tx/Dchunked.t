@@ -8,6 +8,17 @@ use Test::More tests => 11;
 SKIP: {
     skip 'Temp for testing.', 11 if $ENV{TTW_TARGET} eq 'python';
 
+    my $cafile = 't/etc/ssl/test-cert.pem';
+    if ( !-d 't' ) {
+        if ( -d '../t' ) {
+            $cafile = "../$cafile";
+        } elsif ( -d '../../t' ) {
+            $cafile = "../../$cafile";
+        } else {
+            die q(Can't find test folder.);
+        }
+    }
+
     use IO::Socket::SSL;
 
     # create a connecting socket
@@ -22,7 +33,7 @@ SKIP: {
             PeerPort     => '8444',
             Proto        => 'tcp',
             SSL_hostname => 'chunkedooooooooo.onion.test',
-            SSL_ca_file  => './t/etc/ssl/test-cert.pem',
+            SSL_ca_file  => $cafile,
         );
       } while ( !$socket
         && $! == $!{ECONNREFUSED}

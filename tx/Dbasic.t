@@ -6,6 +6,17 @@ use Test::More tests => 8;
 
 use IO::Socket::SSL;
 
+my $cafile = 't/etc/ssl/test-cert.pem';
+if ( !-d 't' ) {
+    if ( -d '../t' ) {
+        $cafile = "../$cafile";
+    } elsif ( -d '../../t' ) {
+        $cafile = "../../$cafile";
+    } else {
+        die q(Can't find test folder.);
+    }
+}
+
 # create a connecting socket
 my $socket;
 my $ctr      = 0;
@@ -14,7 +25,7 @@ my @sockopts = (
     PeerPort     => '8444',
     Proto        => 'tcp',
     SSL_hostname => 'echooooooooooooo.onion.test',
-    SSL_ca_file  => './t/etc/ssl/test-cert.pem',
+    SSL_ca_file  => $cafile,
 );
 do {
     diag "Connection attempt $ctr: $!"

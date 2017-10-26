@@ -40,10 +40,12 @@ my $tor2web;
 if ( $ENV{TTW_TARGET} ~~ [ 'python', 'c' ] ) {
     use IPC::Run;
     if ( !-d 't' ) {
-        if ( -d 'tx' ) {
+        if ( -d '../t' ) {
             chdir '../';
-        } else {
+        } elsif ( -d '../../t' ) {
             chdir '../../';
+        } else {
+            die q(Can't find test folder.);
         }
     }
     $tor2web =
