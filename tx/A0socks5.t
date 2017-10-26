@@ -38,9 +38,17 @@ $builder->todo_output( \$output );
 
 my $tor2web;
 if ( $ENV{TTW_TARGET} ~~ [ 'python', 'c' ] ) {
-    use IPC::Run qw(start);
+    use IPC::Run;
+    if ( !-d 't' ) {
+        if ( -d 'tx' ) {
+            chdir '../';
+        } else {
+            chdir '../../';
+        }
+    }
     $tor2web =
-      start( [ '/bin/sh', 't/bin/tor2web', '-c', 't/etc/conf/test.conf' ],
+      IPC::Run::start(
+        [ '/bin/sh', 't/bin/tor2web', '-c', 't/etc/conf/test.conf' ],
         '<', \undef, '>&', '/dev/stderr' );
 }
 
