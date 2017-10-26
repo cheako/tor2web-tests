@@ -34,3 +34,12 @@ inc/
 /MANIFEST.bak
 /pm_to_blib
 /*.zip
+
+# automake
+*.t.log
+*.t.trs
+/Makefile.in
+/tx/Makefile
+/tx/Makefile.in
+/var/run/test/test.pid
+
