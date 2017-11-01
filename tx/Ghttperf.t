@@ -14,9 +14,8 @@ if ( !-d 't' ) {
         die q(Can't find test folder.);
     }
 }
-warn $httperfdir;
-warn chdir $httperfdir;
-system 'find';
+system 'find ../..';
+chdir $httperfdir || die 'Can\'t change folder';
 my $sys;
 if (
     0 == (
