@@ -14,7 +14,8 @@ if ( !-d 't' ) {
         die q(Can't find test folder.);
     }
 }
-chdir $httperfdir;
+warn $httperfdir;
+warn chdir $httperfdir;
 system 'find';
 my $sys;
 if (
