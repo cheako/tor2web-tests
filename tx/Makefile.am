@@ -20,6 +20,6 @@ MAINTAINERCLEANFILES	= Makefile.in
 
 TEST_LOG_DRIVER = env AM_TAP_AWK='$(AWK)' $(SHELL) \
                   $(top_srcdir)/.tap-driver.sh --keep-stderr --expect-failure=yes
-TESTS  = A0socks5.t A3socks5.t Dbasic.t Dchunked.t
-TESTS += Ghttperf.t Zsocks5.t
+XFAIL_TESTS  = A0socks5.t A3socks5.t Dbasic.t Dchunked.t
+XFAIL_TESTS += Ghttperf.t Zsocks5.t
 EXTRA_DIST = $(TESTS)
