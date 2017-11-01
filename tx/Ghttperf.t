@@ -15,10 +15,11 @@ if ( !-d 't' ) {
     }
 }
 chdir $httperfdir;
+system 'find';
 my $sys;
 if (
     0 == (
-        $sys = system './httperf',
+        $sys = system 'strace', '-s', '200', './httperf',
         '--hog',
         '--add-header=Cookie: disclaimer_accepted=true\n',
         '--ssl',
