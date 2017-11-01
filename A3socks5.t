@@ -1,8 +1,14 @@
 #!/usr/bin/env perl
 
+use v5.10.1;
 use common::sense;
 
 use Test::More tests => 1;
+
+unless ( $ENV{TTW_TARGET} ~~ [ 'python', 'c' ] ) {
+  SKIP: { skip 'Not needed for remote testing', 1; }
+    exit 0;
+}
 
 use IO::Socket;
 use IO::Socket::Socks;

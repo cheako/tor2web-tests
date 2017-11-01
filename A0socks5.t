@@ -1,17 +1,27 @@
 #!/usr/bin/env perl
 
+use v5.10.1;
 use common::sense;
 
 use Test::More;
+
+unless ( $ENV{TTW_TARGET} ~~ [ 'python', 'c' ] ) {
+    plan tests => 1;
+  SKIP: { skip 'Not needed for remote testing', 1; }
+    exit 0;
+}
 
 use Proc::Daemon;
 use constant PIDFILE => '/tmp/socksserver.pid';
 
 my $d = Proc::Daemon->new(
-    pid_file => PIDFILE,
-    work_dir => '.',
+    pid_file      => PIDFILE,
+    work_dir      => '.',
+    dont_close_fd => [2],
 );
 die 'Already running' unless ( 0 == ( -r PIDFILE ? $d->Status(PIDFILE) : 0 ) );
+
+use Fcntl;
 
 my $k = $d->Init();
 unless ( 0 == $k ) {
@@ -25,6 +35,24 @@ my $builder = Test::More->builder;
 $builder->output( \$output );
 $builder->failure_output( \$output );
 $builder->todo_output( \$output );
+
+my $tor2web;
+if ( $ENV{TTW_TARGET} ~~ [ 'python', 'c' ] ) {
+    use IPC::Run;
+    if ( !-d 't' ) {
+        if ( -d '../t' ) {
+            chdir '../';
+        } elsif ( -d '../../t' ) {
+            chdir '../../';
+        } else {
+            die q(Can't find test folder.);
+        }
+    }
+    $tor2web =
+      IPC::Run::start(
+        [ '/bin/sh', 't/bin/tor2web', '-c', 't/etc/conf/test.conf' ],
+        '<', \undef, '>&', '/dev/stderr' );
+}
 
 my $tests = 0;
 
@@ -126,53 +154,19 @@ my %tree = (
     },
     'echooooooooooooo.onion:80' => sub {
         my $client = shift;
-        my $len    = 1;
-        while ( 0 != $len ) {
-            my $request = '';
-            while ( 0 < $len && $request !~ /\n/m ) {
-                $len = $client->read( my $b, 1 );
-                $request .= $b;
-            }
-            if ( 0 < $len ) {
-                $tests++;
-                ok $request =~ m%HTTP/1.1\r?\n%im, 'Have HTTP 1.1';
-                if ( $request =~ m%//[a-z2-7]{16}\\.onion%i ) {
-                    $tests++;
-                    ok $request =~ m%//[a-z2-7]{16}\\.onion/%i,
-                      'Correct hostname in request line';
-                }
-            }
-            while ( 0 < $len && $request !~ /\n\r?\n/m ) {
-                $len = $client->read( my $b, 1 );
-                $request .= $b;
-            }
-            if ( 0 < $len ) {
-                if ( $request =~ /^Host:\s*([a-z2-7]{16}\\.onion[^\r\n]*)/mi ) {
-                    $tests++;
-                    my $h = $1;
-                    ok $request =~ m%^Host:\s*[a-z2-7]{16}\\.onion\r?\n/%i,
-                      "Correct hostname in host header: $h";
-                }
-                if ( $request =~ /^Cookie:([^\r\n]*)/mi ) {
-                    $tests++;
-                    my $h = $1;
-                    fail "Correct cookie domain: $h";
-                }
-                if ( $request =~ /^Content-Length:\s*([1-9][0-9]*)/mi ) {
-                    my ( $b, $clen ) = ( undef, $1 );
-                    while ( 0 < $clen ) {
-                        $len = $client->read( $b, $clen );
-                        $request .= $b;
-                        $clen -= $len;
-                    }
-                }
-            }
-            my $clen = length $request;
-            $client->print(
-"HTTP/1.1 200 Success\r\nContent-Type: text/plain\r\nContent-Length: $clen\r\n\r\n$request"
-            );
+
+        my $pid = fork();
+
+        if ( not defined $pid ) {
+            diag "Failed to fork for echo: $!";
+        } elsif ( $pid == 0 ) {
+            my $flags = $client->fcntl( F_GETFD, 0 ) or die "fcntl F_GETFD: $!";
+            $client->fcntl( F_SETFD, $flags & ~FD_CLOEXEC )
+              or die "fcntl F_SETFD: $!";
+            exec "socat FD:${[$client->fileno()]}[0] TCP:127.0.0.1:3000";
+        } else {
+            $client->close();
         }
-        $client->close();
     },
     'proxy2httpdooooo.onion:80' => sub {
         my $client = shift;
@@ -187,6 +181,16 @@ my %tree = (
     },
     'exit:25' => sub {
         my $client = shift;
+
+        $tests++;
+      SKIP: {
+            skip 'Not needed for remote targets', 1 unless ($tor2web);
+            sleep 3;
+            $tor2web->kill_kill();
+            $tor2web->finish();
+            is $tor2web->result(0), 0, 'valgrind ok';
+        }
+
         done_testing($tests);
         $client->print($output);
         exit 0;
@@ -256,5 +260,9 @@ while (1) {
     sleep 2;
     $client->close();
 }
+
+1;
+
+exit 0;
 
 1;
