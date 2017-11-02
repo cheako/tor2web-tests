@@ -1,2 +1,2 @@
-#!/bin/sh
-daemon --name=ttwhttpd --respawn -l daemon.crit -b daemon.err -E daemon.crit -O daemon.err -- bin/ttwhttpd.pl daemon
+#!/bin/bash
+daemon -- $(pwd)/bin/ttwhttpd.pl daemon -l http://127.0.0.1:3001

@@ -163,7 +163,7 @@ my %tree = (
             my $flags = $client->fcntl( F_GETFD, 0 ) or die "fcntl F_GETFD: $!";
             $client->fcntl( F_SETFD, $flags & ~FD_CLOEXEC )
               or die "fcntl F_SETFD: $!";
-            exec "socat FD:${[$client->fileno()]}[0] TCP:127.0.0.1:3000";
+            exec "socat FD:${[$client->fileno()]}[0] TCP:127.0.0.1:3001";
         } else {
             $client->close();
         }
