@@ -1,3 +1,3 @@
-#!/bin/bash
+#!/bin/sh
 daemon --name=ttwhttpd --respawn -- bin/ttwhttpd.pl daemon
-sleep 2
+sleep 4
