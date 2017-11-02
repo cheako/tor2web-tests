@@ -30,7 +30,6 @@ if (
         '--timeout=5',
         '--burst-length=5',
         '--num-calls=50',
-        '--verbose',
     )
   )
 {
