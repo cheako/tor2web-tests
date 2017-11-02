@@ -19,7 +19,7 @@ chdir $httperfdir || die 'Can\'t change folder';
 my $sys;
 if (
     0 == (
-        $sys = system 'strace', '-s', '200', './httperf',
+        $sys = system './httperf',
         '--hog',
         '--add-header=Cookie: disclaimer_accepted=true\n',
         '--ssl',
