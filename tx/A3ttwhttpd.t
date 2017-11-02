@@ -13,7 +13,7 @@ unless ( $ENV{TTW_TARGET} ~~ [ 'python', 'c' ] ) {
 use IO::Socket;
 
 sleep 2;
-system '{ ps ax; netstat -plunt; cat /var/log/daemon.log; } >&2';
+system '{ ps ax; netstat -plunt; find /var/log; } >&2';
 
 my $sock;
 until ( $sock = IO::Socket::INET->new('127.0.0.1:3000') ) {
