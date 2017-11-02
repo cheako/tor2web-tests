@@ -80,6 +80,8 @@ sub one_response {
     return ( $sock, $response );
 }
 
+use HTTP::Response;
+
 my $resp;
 SKIP: {
     skip 'tor2web python not support http proxy', 2
@@ -93,7 +95,9 @@ Cookie: disclaimer_accepted=true\r
       ),
       'empty headers sent';
     ( $socket, $resp ) = one_response($socket);
-    is $resp, qq~HTTP/1.1 200 OK\r
+
+    is HTTP::Response->parse($resp), HTTP::Response->parse(
+        qq~HTTP/1.1 200 OK\r
 Content-Type: text/plain\r
 Server: Mojolicious (Perl)\r
 Content-Length: 91\r
@@ -101,7 +105,9 @@ Content-Length: 91\r
 GET https://echooooooooooooo.onion/index.txt HTTP/1.1\r
 Cookie: disclaimer_accepted=true\r
 \r
-~, 'empty headers read';
+~
+      ),
+      'empty headers read';
 
 }
 
@@ -114,8 +120,9 @@ Host: echooooooooooooo.onion.test\r
   ),
   'host header sent';
 ( $socket, $resp ) = one_response($socket);
-is $resp, $ENV{TTW_TARGET} eq 'python'
-  ? qq~HTTP/1.0 200 OK\r
+is HTTP::Response->parse($resp), HTTP::Response->parse(
+    $ENV{TTW_TARGET} eq 'python'
+    ? qq~HTTP/1.0 200 OK\r
 X-Check-Tor: false\r
 Content-Security-Policy: upgrade-insecure-requests\r
 Strict-Transport-Security: max-age=31536000; includeSubDomains\r
@@ -132,7 +139,7 @@ X-Forwarded-Proto: https\r
 Cookie: disclaimer_accepted=true\r
 \r
 ~
-  : qq~HTTP/1.1 200 OK\r
+    : qq~HTTP/1.1 200 OK\r
 Content-Length: 91\r
 Server: Mojolicious (Perl)\r
 Content-Type: text/plain\r
@@ -141,7 +148,9 @@ GET /index.txt HTTP/1.1\r
 Cookie: disclaimer_accepted=true\r
 Host: echooooooooooooo.onion\r
 \r
-~, 'host header read';
+~
+  ),
+  'host header read';
 
 ok $socket->print(
     qq~GET /index.txt HTTP/1.0\r
@@ -154,8 +163,9 @@ ok
   ),
   'ok content sent';
 ( $socket, $resp ) = one_response($socket);
-is $resp, $ENV{TTW_TARGET} eq 'python'
-  ? qq~HTTP/1.0 200 OK\r
+is HTTP::Response->parse($resp), HTTP::Response->parse(
+    $ENV{TTW_TARGET} eq 'python'
+    ? qq~HTTP/1.0 200 OK\r
 X-Check-Tor: false\r
 Content-Security-Policy: upgrade-insecure-requests\r
 Strict-Transport-Security: max-age=31536000; includeSubDomains\r
@@ -174,7 +184,7 @@ Cookie: disclaimer_accepted=true\r
 \r
 ok
 ~
-  : qq~HTTP/1.1 200 OK\r
+    : qq~HTTP/1.1 200 OK\r
 Content-Type: text/plain\r
 Server: Mojolicious (Perl)\r
 Content-Length: 113\r
@@ -185,7 +195,9 @@ Host: echooooooooooooo.onion\r
 Content-Length: 3\r
 \r
 ok
-~, 'ok content read';
+~
+  ),
+  'ok content read';
 
 ok $socket->close(), 'closed';
 
