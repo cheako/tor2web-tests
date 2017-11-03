@@ -80,7 +80,7 @@ sub one_response {
     return ( $sock, $response );
 }
 
-use HTTP::Response;
+use HTTP::Response ();
 
 my $resp;
 SKIP: {
@@ -96,7 +96,8 @@ Cookie: disclaimer_accepted=true\r
       'empty headers sent';
     ( $socket, $resp ) = one_response($socket);
 
-    is HTTP::Response->parse($resp), HTTP::Response->parse(
+    my $got      = HTTP::Response->parse($resp);
+    my $expected = HTTP::Response->parse(
         qq~HTTP/1.1 200 OK\r
 Content-Type: text/plain\r
 Server: Mojolicious (Perl)\r
@@ -106,8 +107,8 @@ GET https://echooooooooooooo.onion/index.txt HTTP/1.1\r
 Cookie: disclaimer_accepted=true\r
 \r
 ~
-      ),
-      'empty headers read';
+    );
+    is $got, $expected, 'empty headers read';
 
 }
 
@@ -120,7 +121,8 @@ Host: echooooooooooooo.onion.test\r
   ),
   'host header sent';
 ( $socket, $resp ) = one_response($socket);
-is HTTP::Response->parse($resp), HTTP::Response->parse(
+$got      = HTTP::Response->parse($resp);
+$expected = HTTP::Response->parse(
     $ENV{TTW_TARGET} eq 'python'
     ? qq~HTTP/1.0 200 OK\r
 X-Check-Tor: false\r
@@ -149,8 +151,8 @@ Cookie: disclaimer_accepted=true\r
 Host: echooooooooooooo.onion\r
 \r
 ~
-  ),
-  'host header read';
+);
+is $got, $expected, 'host header read';
 
 ok $socket->print(
     qq~GET /index.txt HTTP/1.0\r
@@ -163,7 +165,8 @@ ok
   ),
   'ok content sent';
 ( $socket, $resp ) = one_response($socket);
-is HTTP::Response->parse($resp), HTTP::Response->parse(
+$got      = HTTP::Response->parse($resp);
+$expected = HTTP::Response->parse(
     $ENV{TTW_TARGET} eq 'python'
     ? qq~HTTP/1.0 200 OK\r
 X-Check-Tor: false\r
@@ -196,8 +199,8 @@ Content-Length: 3\r
 \r
 ok
 ~
-  ),
-  'ok content read';
+);
+is $got, $expected, 'ok content read';
 
 ok $socket->close(), 'closed';
 
