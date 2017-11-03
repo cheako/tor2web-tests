@@ -121,8 +121,8 @@ Host: echooooooooooooo.onion.test\r
   ),
   'host header sent';
 ( $socket, $resp ) = one_response($socket);
-$got      = HTTP::Response->parse($resp);
-$expected = HTTP::Response->parse(
+my $got      = HTTP::Response->parse($resp);
+my $expected = HTTP::Response->parse(
     $ENV{TTW_TARGET} eq 'python'
     ? qq~HTTP/1.0 200 OK\r
 X-Check-Tor: false\r
