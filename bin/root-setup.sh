@@ -6,8 +6,7 @@ apt-get -yq update &&
 	--allow-change-held-packages install \
 	daemon socat libmojolicious-perl \
 	ltrace procps net-tools \
-	libssl1.0-dev \
-	libtool \
+	automake libssl1.0-dev libtool \
 	libclass-method-modifiers-perl
 
 cd t/httperf
