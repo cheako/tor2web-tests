@@ -108,7 +108,7 @@ Cookie: disclaimer_accepted=true\r
 \r
 ~
     );
-    is $got, $expected, 'empty headers read';
+    is_deeply $got, $expected, 'empty headers read';
 
 }
 
@@ -152,7 +152,7 @@ Host: echooooooooooooo.onion\r
 \r
 ~
 );
-is $got, $expected, 'host header read';
+is_deeply $got, $expected, 'host header read';
 
 ok $socket->print(
     qq~GET /index.txt HTTP/1.0\r
@@ -200,7 +200,7 @@ Content-Length: 3\r
 ok
 ~
 );
-is $got, $expected, 'ok content read';
+is_deeply $got, $expected, 'ok content read';
 
 ok $socket->close(), 'closed';
 
