@@ -24,7 +24,7 @@ if (
         '--add-header=Cookie: disclaimer_accepted=true\n',
         '--ssl',
         '--ssl-ca-file=../../etc/ssl/test-cert.pem',
-        '--server-name=echooooooooooooo.onion',
+        '--server-name=echooooooooooooo.onion.test',
         '--port=8444',
         '--num-conn=100',
         '--timeout=5',
