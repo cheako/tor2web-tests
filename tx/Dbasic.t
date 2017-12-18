@@ -2,7 +2,7 @@
 
 use common::sense;
 
-use Test::More tests => 8;
+use Test::More tests => 6;
 
 use IO::Socket::SSL;
 
@@ -83,35 +83,6 @@ sub one_response {
 use HTTP::Response ();
 
 my $resp;
-SKIP: {
-    skip 'tor2web python not support http proxy', 2
-      if ( $ENV{TTW_TARGET} eq 'python' );
-
-    ok $socket->print(
-        qq~GET https://echooooooooooooo.onion.test/index.txt HTTP/1.0\r
-Cookie: disclaimer_accepted=true\r
-\r
-~
-      ),
-      'empty headers sent';
-    ( $socket, $resp ) = one_response($socket);
-
-    my $got      = HTTP::Response->parse($resp);
-    my $expected = HTTP::Response->parse(
-        qq~HTTP/1.1 200 OK\r
-Content-Type: text/plain\r
-Server: Mojolicious (Perl)\r
-Content-Length: 91\r
-\r
-GET https://echooooooooooooo.onion/index.txt HTTP/1.1\r
-Cookie: disclaimer_accepted=true\r
-\r
-~
-    );
-    is_deeply $got, $expected, 'empty headers read';
-
-}
-
 ok $socket->print(
     qq~GET /index.txt HTTP/1.0\r
 Cookie: disclaimer_accepted=true\r
